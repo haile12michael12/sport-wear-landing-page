@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goferesport Wear - Premium Sportswear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom CSS for elements that need more styling */
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .language-selector:hover .language-dropdown {
+            display: block;
+        }
+        
+        .cart-dropdown:hover .cart-content {
+            display: block;
+        }
+        
+        /* Animation for loading */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50">
+    <!-- Language and Currency Modal -->
+    <div id="languageModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Language & Currency</h3>
+                <button onclick="closeModal('languageModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="changeLanguage('en')" class="px-4 py-2 border rounded-lg hover:bg-gray-100 flex items-center justify-between language-btn">
+                        <span>English</span>
+                        <i class="fas fa-check text-green-500 hidden en-selected"></i>
+                    </button>
+                    <button onclick="changeLanguage('am')" class="px-4 py-2 border rounded-lg hover:bg-gray-100 flex items-center justify-between language-btn">
+                        <span>አማርኛ</span>
+                        <i class="fas fa-check text-green-500 hidden am-selected"></i>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                <select class="w-full p-2 border rounded-lg">
+                    <option>USD ($)</option>
+                    <option>ETB (ብር)</option>
+                    <option>EUR (€)</option>
+                    <option>GBP (£)</option>
+                </select>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeModal('languageModal')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Login to Your Account</h3>
+                <button onclick="closeModal('loginModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" required class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" required class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="remember" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="remember" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                    </div>
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Forgot password?</a>
+                </div>
+                <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center">
+                    <span id="loginBtnText">Login</span>
+                    <i id="loginSpinner" class="fas fa-spinner loading-spinner ml-2 hidden"></i>
+                </button>
+            </form>
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">Don't have an account? <a href="#" onclick="showRegisterModal()" class="text-blue-600 hover:text-blue-800">Register</a></p>
+            </div>
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <p class="text-sm text-gray-600 mb-2">Or login with</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button class="py-2 px-4 border rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                        <i class="fab fa-google text-red-500 mr-2"></i>
+                        <span>Google</span>
+                    </button>
+                    <button class="py-2 px-4 border rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                        <i class="fab fa-facebook-f text-blue-600 mr-2"></i>
+                        <span>Facebook</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Create an Account</h3>
+                <button onclick="closeModal('registerModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="registerForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                        <input type="text" required class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                        <input type="text" required class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" required class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" required class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                    <input type="password" required class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="terms" required class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="terms" class="ml-2 block text-sm text-gray-700">I agree to the <a href="#" class="text-blue-600 hover:text-blue-800">Terms & Conditions</a></label>
+                </div>
+                <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center">
+                    <span id="registerBtnText">Register</span>
+                    <i id="registerSpinner" class="fas fa-spinner loading-spinner ml-2 hidden"></i>
+                </button>
+            </form>
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">Already have an account? <a href="#" onclick="showLoginModal()" class="text-blue-600 hover:text-blue-800">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="fixed inset-y-0 right-0 w-96 bg-white shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-40">
+        <div class="flex flex-col h-full">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-lg font-semibold">Your Cart (3)</h3>
+                <button onclick="closeCart()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="flex-grow overflow-y-auto p-4 space-y-4">
+                <!-- Cart items -->
+                <div class="flex items-center border-b pb-4">
+                    <div class="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Product" class="w-full h-full object-cover">
+                    </div>
+                    <div class="ml-4 flex-grow">
+                        <h4 class="font-medium">Running Shoes Pro</h4>
+                        <p class="text-sm text-gray-600">Size: 42</p>
+                        <div class="flex items-center justify-between mt-1">
+                            <div class="flex items-center border rounded-lg">
+                                <button class="px-2 py-1 text-gray-600 hover:bg-gray-100">-</button>
+                                <span class="px-2">1</span>
+                                <button class="px-2 py-1 text-gray-600 hover:bg-gray-100">+</button>
+                            </div>
+                            <p class="font-medium">$89.99</p>
+                        </div>
+                    </div>
+                    <button class="ml-2 text-gray-400 hover:text-red-500">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                
+                <div class="flex items-center border-b pb-4">
+                    <div class="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1469&q=80" alt="Product" class="w-full h-full object-cover">
+                    </div>
+                    <div class="ml-4 flex-grow">
+                        <h4 class="font-medium">Training T-Shirt</h4>
+                        <p class="text-sm text-gray-600">Color: Black</p>
+                        <div class="flex items-center justify-between mt-1">
+                            <div class="flex items-center border rounded-lg">
+                                <button class="px-2 py-1 text-gray-600 hover:bg-gray-100">-</button>
+                                <span class="px-2">2</span>
+                                <button class="px-2 py-1 text-gray-600 hover:bg-gray-100">+</button>
+                            </div>
+                            <p class="font-medium">$49.98</p>
+                        </div>
+                    </div>
+                    <button class="ml-2 text-gray-400 hover:text-red-500">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 border-t">
+                <div class="flex justify-between mb-2">
+                    <span>Subtotal</span>
+                    <span>$139.97</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span>Shipping</span>
+                    <span>$5.99</span>
+                </div>
+                <div class="flex justify-between mb-4 font-bold text-lg">
+                    <span>Total</span>
+                    <span>$145.96</span>
+                </div>
+                <button class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">Proceed to Checkout</button>
+                <div class="mt-2 text-center">
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Continue shopping</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden">
+        <div class="absolute top-0 left-0 w-64 h-full bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-lg font-semibold">Menu</h3>
+                <button onclick="closeMobileMenu()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-2">
+                <a href="#" class="block py-2 px-3 rounded-lg hover:bg-gray-100 font-medium">Home</a>
+                <a href="#" class="block py-2 px-3 rounded-lg hover:bg-gray-100">Shop</a>
+                <a href="#" class="block py-2 px-3 rounded-lg hover:bg-gray-100">Collections</a>
+                <a href="#" class="block py-2 px-3 rounded-lg hover:bg-gray-100">About Us</a>
+                <a href="#" class="block py-2 px-3 rounded-lg hover:bg-gray-100">Contact</a>
+                <div class="pt-4 border-t">
+                    <button onclick="showLoginModal()" class="w-full py-2 px-3 bg-gray-100 rounded-lg hover:bg-gray-200 mb-2">Login</button>
+                    <button onclick="showRegisterModal()" class="w-full py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Register</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="min-h-screen flex flex-col">
+        <!-- Top Announcement Bar -->
+        <div class="bg-blue-600 text-white text-sm py-2 px-4 text-center">
+            <p>🚀 Free shipping on orders over $50 | Use code: GOFERE10 for 10% off</p>
+        </div>
+
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-20">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center justify-between py-4">
+                    <!-- Mobile menu button -->
+                    <button onclick="openMobileMenu()" class="md:hidden text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    
+                    <!-- Logo -->
+                    <div class="flex items-center">
+                        <a href="#" class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-2">
+                                GW
+                            </div>
+                            <span class="text-xl font-bold text-gray-800">Goferesport Wear</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Main Navigation -->
+                    <nav class="hidden md:flex space-x-8">
+                        <a href="#" class="text-blue-600 font-medium">Home</a>
+                        <a href="#" class="text-gray-600 hover:text-blue-600">Shop</a>
+                        <a href="#" class="text-gray-600 hover:text-blue-600">Collections</a>
+                        <a href="#" class="text-gray-600 hover:text-blue-600">About Us</a>
+                        <a href="#" class="text-gray-600 hover:text-blue-600">Contact</a>
+                    </nav>
+                    
+                    <!-- Right Icons -->
+                    <div class="flex items-center space-x-4">
+                        <div class="language-selector relative">
+                            <button onclick="openModal('languageModal')" class="flex items-center text-gray-600 hover:text-blue-600">
+                                <i class="fas fa-globe mr-1"></i>
+                                <span class="hidden md:inline">EN</span>
+                            </button>
+                        </div>
+                        
+                        <button onclick="showLoginModal()" class="hidden md:flex items-center text-gray-600 hover:text-blue-600">
+                            <i class="fas fa-user mr-1"></i>
+                            <span>Login</span>
+                        </button>
+                        
+                        <button class="text-gray-600 hover:text-blue-600">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        
+                        <div class="cart-dropdown relative">
+                            <button onclick="toggleCart()" class="flex items-center text-gray-600 hover:text-blue-600 relative">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="ml-1 hidden md:inline">Cart</span>
+                                <span class="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow">
+            <!-- Hero Section -->
+            <section class="hero-bg text-white py-20 md:py-32">
+                <div class="container mx-auto px-4 text-center">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">Elevate Your Performance</h1>
+                    <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">Premium sportswear designed for athletes who demand the best in comfort and style.</p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <a href="#" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium text-lg">Shop Now</a>
+                        <a href="#" class="px-8 py-3 bg-white text-gray-800 hover:bg-gray-100 rounded-lg font-medium text-lg">Explore Collections</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Categories -->
+            <section class="py-12 bg-white">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold text-center mb-12">Shop by Category</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <a href="#" class="group relative overflow-hidden rounded-xl h-48">
+                            <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80" alt="Running" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                                <h3 class="text-white text-xl font-bold">Running</h3>
+                            </div>
+                        </a>
+                        <a href="#" class="group relative overflow-hidden rounded-xl h-48">
+                            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Training" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                                <h3 class="text-white text-xl font-bold">Training</h3>
+                            </div>
+                        </a>
+                        <a href="#" class="group relative overflow-hidden rounded-xl h-48">
+                            <img src="https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80" alt="Basketball" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                                <h3 class="text-white text-xl font-bold">Basketball</h3>
+                            </div>
+                        </a>
+                        <a href="#" class="group relative overflow-hidden rounded-xl h-48">
+                            <img src="https://images.unsplash.com/photo-1517649763962-0c623066f29e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Accessories" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                                <h3 class="text-white text-xl font-bold">Accessories</h3>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Products -->
+            <section class="py-12 bg-gray-50">
+                <div class="container mx-auto px-4">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-3xl font-bold">Featured Products</h2>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 font-medium">View All</a>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                        <!-- Product 1 -->
+                        <div class="product-card bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Running Shoes Pro" class="w-full h-64 object-cover">
+                                <div class="absolute top-2 right-2">
+                                    <button class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 shadow-md">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                </div>
+                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                                    <span class="text-xs text-white bg-blue-600 px-2 py-1 rounded">Bestseller</span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-lg mb-1">Running Shoes Pro</h3>
+                                <div class="flex items-center mb-2">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                    <span class="text-gray-600 text-sm ml-2">(42 reviews)</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-lg">$89.99</span>
+                                    <button class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Product 2 -->
+                        <div class="product-card bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1469&q=80" alt="Training T-Shirt" class="w-full h-64 object-cover">
+                                <div class="absolute top-2 right-2">
+                                    <button class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 shadow-md">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-lg mb-1">Training T-Shirt</h3>
+                                <div class="flex items-center mb-2">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                    <span class="text-gray-600 text-sm ml-2">(28 reviews)</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <span class="font-bold text-lg">$24.99</span>
+                                        <span class="text-sm text-gray-500 line-through ml-1">$29.99</span>
+                                    </div>
+                                    <button class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Product 3 -->
+                        <div class="product-card bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1595341888016-a392ef81b7de?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1479&q=80" alt="Yoga Leggings" class="w-full h-64 object-cover">
+                                <div class="absolute top-2 right-2">
+                                    <button class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 shadow-md">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                                    <span class="text-xs text-white bg-green-600 px-2 py-1 rounded">New</span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-lg mb-1">Yoga Leggings</h3>
+                                <div class="flex items-center mb-2">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <span class="text-gray-600 text-sm ml-2">(56 reviews)</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-lg">$39.99</span>
+                                    <button class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Product 4 -->
+                        <div class="product-card bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1625&q=80" alt="Sports Backpack" class="w-full h-64 object-cover">
+                                <div class="absolute top-2 right-2">
+                                    <button class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 shadow-md">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-lg mb-1">Sports Backpack</h3>
+                                <div class="flex items-center mb-2">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <span class="text-gray-600 text-sm ml-2">(112 reviews)</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-lg">$49.99</span>
+                                    <button class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Banner -->
+            <section class="py-12 bg-white">
+                <div class="container mx-auto px-4">
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 md:p-12 text-white">
+                        <div class="max-w-2xl">
+                            <h2 class="text-3xl md:text-4xl font-bold mb-4">Summer Sale Up To 40% Off</h2>
+                            <p class="text-lg mb-6">Don't miss our biggest sale of the season. Limited time offer on selected items.</p>
+                            <a href="#" class="px-6 py-3 bg-white text-blue-600 hover:bg-gray-100 rounded-lg font-medium inline-block">Shop the Sale</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials -->
+            <section class="py-12 bg-gray-50">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold text-center mb-12">What Our Customers Say</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-white p-6 rounded-xl shadow-md">
+                            <div class="flex items-center mb-4">
+                                <div class="flex text-yellow-400 mr-2">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="text-gray-600 text-sm">5/5</span>
+                            </div>
+                            <p class="text-gray-700 mb-4">"The running shoes are incredibly comfortable and have improved my performance significantly. Best purchase ever!"</p>
+                            <div class="flex items-center">
+                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah J." class="w-10 h-10 rounded-full mr-3">
+                                <div>
+                                    <h4 class="font-medium">Sarah J.</h4>
+                                    <p class="text-sm text-gray-600">Professional Runner</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-md">
+                            <div class="flex items-center mb-4">
+                                <div class="flex text-yellow-400 mr-2">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="text-gray-600 text-sm">5/5</span>
+                            </div>
+                            <p class="text-gray-700 mb-4">"I've bought several items from Goferesport and the quality is consistently excellent. Highly recommend their products."</p>
+                            <div class="flex items-center">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Michael T." class="w-10 h-10 rounded-full mr-3">
+                                <div>
+                                    <h4 class="font-medium">Michael T.</h4>
+                                    <p class="text-sm text-gray-600">Fitness Trainer</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-md">
+                            <div class="flex items-center mb-4">
+                                <div class="flex text-yellow-400 mr-2">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <span class="text-gray-600 text-sm">4.5/5</span>
+                            </div>
+                            <p class="text-gray-700 mb-4">"Great customer service and fast shipping. The yoga leggings are my new favorite - so comfortable and stylish!"</p>
+                            <div class="flex items-center">
+                                <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Amina K." class="w-10 h-10 rounded-full mr-3">
+                                <div>
+                                    <h4 class="font-medium">Amina K.</h4>
+                                    <p class="text-sm text-gray-600">Yoga Instructor</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Newsletter -->
+            <section class="py-12 bg-blue-600 text-white">
+                <div class="container mx-auto px-4 text-center">
+                    <h2 class="text-3xl font-bold mb-4">Join Our Newsletter</h2>
+                    <p class="text-xl mb-8 max-w-2xl mx-auto">Subscribe to get exclusive offers, new product announcements, and fitness tips directly to your inbox.</p>
+                    <form class="max-w-md mx-auto flex">
+                        <input type="email" placeholder="Your email address" class="flex-grow px-4 py-3 rounded-l-lg focus:outline-none text-gray-800">
+                        <button type="submit" class="px-6 py-3 bg-blue-800 hover:bg-blue-900 rounded-r-lg font-medium">Subscribe</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-white pt-12 pb-6">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Goferesport Wear</h3>
+                        <p class="mb-4">Premium sportswear for athletes who demand the best in performance and style.</p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="w-10 h-10 bg-gray-800 hover:bg-blue-600 rounded-full flex items-center justify-center">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-800 hover:bg-blue-400 rounded-full flex items-center justify-center">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-800 hover:bg-pink-600 rounded-full flex items-center justify-center">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-800 hover:bg-red-600 rounded-full flex items-center justify-center">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Shop</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="hover:text-blue-400">Men's Collection</a></li>
+                            <li><a href="#" class="hover:text-blue-400">Women's Collection</a></li>
+                            <li><a href="#" class="hover:text-blue-400">Accessories</a></li>
+                            <li><a href="#" class="hover:text-blue-400">New Arrivals</a></li>
+                            <li><a href="#" class="hover:text-blue-400">Sale Items</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Customer Service</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="hover:text-blue-400">Contact Us</a></li>
+                            <li><a href="#" class="hover:text-blue-400">FAQs</a></li>
+                            <li><a href="#" class="hover:text-blue-400">Shipping & Returns</a></li>
+                            <li><a href="#" class="hover:text-blue-400">Size Guide</a></li>
+                            <li><a href="#" class="hover:text-blue-400">Track Order</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">About</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="hover:text-blue-400">Our Story</a></li>
+                            <li><a href="#" class="hover:text-blue-400">Careers</a></li>
+                            <li><a href="#" class="hover:text-blue-400">Sustainability</a></li>
+                            <li><a href="#" class="hover:text-blue-400">Blog</a></li>
+                            <li><a href="#" class="hover:text-blue-400">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 mb-4 md:mb-0">© 2023 Goferesport Wear. All rights reserved.</p>
+                    <div class="flex space-x-6">
+                        <img src="https://via.placeholder.com/40x25" alt="Visa" class="h-6">
+                        <img src="https://via.placeholder.com/40x25" alt="Mastercard" class="h-6">
+                        <img src="https://via.placeholder.com/40x25" alt="PayPal" class="h-6">
+                        <img src="https://via.placeholder.com/40x25" alt="Apple Pay" class="h-6">
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Language management
+        let currentLanguage = 'en';
+        
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.querySelector('i').classList.add('hidden');
+            });
+            
+            if (lang === 'en') {
+                document.querySelector('.en-selected').classList.remove('hidden');
+                // Update all text to English
+                document.getElementById('loginBtnText').textContent = 'Login';
+                document.getElementById('registerBtnText').textContent = 'Register';
+                // More translations would be added here
+            } else if (lang === 'am') {
+                document.querySelector('.am-selected').classList.remove('hidden');
+                // Update all text to Amharic
+                document.getElementById('loginBtnText').textContent = 'ግባ';
+                document.getElementById('registerBtnText').textContent = 'ይመዝገቡ';
+                // More translations would be added here
+            }
+        }
+        
+        // Modal management
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+        
+        function showLoginModal() {
+            closeModal('registerModal');
+            openModal('loginModal');
+        }
+        
+        function showRegisterModal() {
+            closeModal('loginModal');
+            openModal('registerModal');
+        }
+        
+        // Cart management
+        function toggleCart() {
+            const cart = document.getElementById('cartSidebar');
+            if (cart.classList.contains('translate-x-full')) {
+                cart.classList.remove('translate-x-full');
+            } else {
+                cart.classList.add('translate-x-full');
+            }
+        }
+        
+        function closeCart() {
+            document.getElementById('cartSidebar').classList.add('translate-x-full');
+        }
+        
+        // Mobile menu
+        function openMobileMenu() {
+            document.getElementById('mobileMenu').classList.remove('hidden');
+            document.querySelector('#mobileMenu > div').classList.remove('-translate-x-full');
+        }
+        
+        function closeMobileMenu() {
+            document.querySelector('#mobileMenu > div').classList.add('-translate-x-full');
+            setTimeout(() => {
+                document.getElementById('mobileMenu').classList.add('hidden');
+            }, 300);
+        }
+        
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const spinner = document.getElementById('loginSpinner');
+            const btnText = document.getElementById('loginBtnText');
+            
+            spinner.classList.remove('hidden');
+            btnText.textContent = currentLanguage === 'en' ? 'Logging in...' : 'በመግባት ላይ...';
+            
+            // Simulate API call
+            setTimeout(() => {
+                spinner.classList.add('hidden');
+                btnText.textContent = currentLanguage === 'en' ? 'Login' : 'ግባ';
+                closeModal('loginModal');
+                // Show success message or redirect
+            }, 1500);
+        });
+        
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const spinner = document.getElementById('registerSpinner');
+            const btnText = document.getElementById('registerBtnText');
+            
+            spinner.classList.remove('hidden');
+            btnText.textContent = currentLanguage === 'en' ? 'Registering...' : 'በምዝገባ ላይ...';
+            
+            // Simulate API call
+            setTimeout(() => {
+                spinner.classList.add('hidden');
+                btnText.textContent = currentLanguage === 'en' ? 'Register' : 'ይመዝገቡ';
+                closeModal('registerModal');
+                // Show success message or redirect
+            }, 1500);
+        });
+        
+        // Initialize language
+        changeLanguage('en');
+    </script>
+</body>
+</html>
